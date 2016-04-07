@@ -25,6 +25,11 @@ if(class_module_system_module::getModuleByName("system")->getStrVersion() != "4.
 
 V5PreUpdate::main();
 
+
+echo "\n";
+echo "\n";
+echo "Update succeeded, please update the packages and database now\n";
+
 echo "</pre>\n";
 
 
@@ -36,10 +41,30 @@ class V5PreUpdate {
         $objUpdate = new V5PreUpdate();
 
         $objUpdate->backupTemplatepack();
+        $objUpdate->moveProjectFiles();
     }
 
+    private function moveProjectFiles()
+    {
+        echo "Updating /project redefinitions...\n";
+        $arrFiles = array(
+            "/project/system/config/config.php" => "/project/module_system/system/config/config.php", 
+            "/project/portal/global_includes.php" => "/project/module_pages/portal/global_includes.php", 
+            "/project/admin/scripts/ckeditor/config_kajona_standard.js" => "/project/module_system/admin/scripts/ckeditor/config_kajona_standard.js", 
+        );
+        
+        foreach($arrFiles as $strSource => $strTarget) {
+        
+            if(is_file(__DIR__.$strSource)) {
+                $this->safeCopyFile(__DIR_.$strSource, __DIR__.$strTarget);
+                
+                unlink(__DIR__.$strSource);
+            }
+        }
+    }
+    
 
-    public function backupTemplatepack()
+    private function backupTemplatepack()
     {
         echo "Searching for currently active template pack\n";
         $strName = class_module_system_setting::getConfigValue("_packagemanager_defaulttemplate_");
@@ -74,7 +99,6 @@ class V5PreUpdate {
         $arrEntries = class_resourceloader::getInstance()->getFolderContent("/templates/default/tpl", array(), true);
         foreach($arrEntries as $strPath => $strEntry) {
             if(is_dir(__DIR__.$strPath)) {
-                echo " Cheking dir ".$strPath."\n";
                 $arrFiles = scandir(__DIR__.$strPath."/");
 
                 foreach($arrFiles as $strOneFile) {
@@ -98,19 +122,18 @@ class V5PreUpdate {
         if(!is_file($strTarget)) {
             if(!is_dir(dirname($strTarget))) {
                 mkdir(dirname($strTarget), 0777, true);
-
             }
             if(copy($strSource, $strTarget)) {
-                echo " <span style='color: green'>copy succeeded</span>";
+                echo " <span style='color: green'>copying ".$strSource ." to ".$strTarget." succeeded</span>";
             }
             else {
-                echo " <span style='color: red'>copy failed</span>";
+                echo " <span style='color: red'>copying ".$strSource ." to ".$strTarget." failed</span>";
             }
         }
     }
 
     private function copyRecursive($strSourceDir, $strTargetDir) {
-
+        
         $arrEntries = scandir($strSourceDir);
 
         foreach($arrEntries as $strOneEntry) {
