@@ -48,21 +48,21 @@ class V5PreUpdate {
     {
         echo "Updating /project redefinitions...\n";
         $arrFiles = array(
-            "/project/system/config/config.php" => "/project/module_system/system/config/config.php", 
-            "/project/portal/global_includes.php" => "/project/module_pages/portal/global_includes.php", 
-            "/project/admin/scripts/ckeditor/config_kajona_standard.js" => "/project/module_system/admin/scripts/ckeditor/config_kajona_standard.js", 
+            "/project/system/config/config.php" => "/project/module_system/system/config/config.php",
+            "/project/portal/global_includes.php" => "/project/module_pages/portal/global_includes.php",
+            "/project/admin/scripts/ckeditor/config_kajona_standard.js" => "/project/module_system/admin/scripts/ckeditor/config_kajona_standard.js",
         );
-        
+
         foreach($arrFiles as $strSource => $strTarget) {
-        
+
             if(is_file(__DIR__.$strSource)) {
-                $this->safeCopyFile(__DIR_.$strSource, __DIR__.$strTarget);
-                
+                $this->safeCopyFile(__DIR__.$strSource, __DIR__.$strTarget);
+
                 unlink(__DIR__.$strSource);
             }
         }
     }
-    
+
 
     private function backupTemplatepack()
     {
@@ -133,7 +133,7 @@ class V5PreUpdate {
     }
 
     private function copyRecursive($strSourceDir, $strTargetDir) {
-        
+
         $arrEntries = scandir($strSourceDir);
 
         foreach($arrEntries as $strOneEntry) {
@@ -141,13 +141,13 @@ class V5PreUpdate {
                 continue;
             }
 
-            if(!is_file(_realpath_.$strTargetDir."/".$strOneEntry)) {
+            if(is_file($strSourceDir."/".$strOneEntry) && !is_file($strTargetDir."/".$strOneEntry)) {
 
                 if(!is_dir($strTargetDir)) {
                     mkdir($strTargetDir, 0777, true);
                 }
 
-                copy(_realpath_.$strSourceDir."/".$strOneEntry, _realpath_.$strTargetDir."/".$strOneEntry);
+                copy($strSourceDir."/".$strOneEntry, $strTargetDir."/".$strOneEntry);
             }
             elseif(is_dir($strSourceDir."/".$strOneEntry)) {
                 if(!is_dir($strTargetDir."/".$strOneEntry)) {
