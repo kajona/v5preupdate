@@ -13,7 +13,7 @@ echo "This script backs up your v4 template and creates a new template pack out 
 echo "\n";
 echo "\n";
 
-if(class_module_system_module::getModuleByName("system")->getStrVersion() != "4.7.1") {
+if(version_compare(class_module_system_module::getModuleByName("system")->getStrVersion(), "4.7.1", "<=")) {
     echo "<b>Error</b>\n";
     echo "Your Kajona-Installation is currently on version ".class_module_system_module::getModuleByName("system")->getStrVersion()."\n";
     echo "You need at least version 4.7.1 to upgrate to 5.0\n";
